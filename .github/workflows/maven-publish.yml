@@ -75,7 +75,7 @@ jobs:
       - name: Remove old WAR file from Tomcat server
         run: |
           # Remove the old WAR file from Tomcat webapps directory
-          sudo rm -f /opt/tomcat/webapps/demo-1.0.0.war
+          sudo rm -f /opt/tomcat/webapps/*.war
           echo "Old WAR file removed from Tomcat."
 
       - name: Deploy new WAR file
