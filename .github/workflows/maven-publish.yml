@@ -42,21 +42,21 @@ jobs:
 
 # stop tomcat  --> ps -e
 
-      - name: Backup running WAR file
-        run: |
-          BACKUP_DIR="/home/varshini/war-backups" 
-          mkdir -p $BACKUP_DIR
+   #   - name: Backup running WAR file
+    #    run: |
+     #     BACKUP_DIR="/home/varshini/war-backups" 
+     #     mkdir -p $BACKUP_DIR
 
           # Remove the previous backup if it exists
-          rm -f $BACKUP_DIR/demo-1.0.0-*.war
+      #    rm -f $BACKUP_DIR/demo-1.0.0-*.war
 
           # Define a timestamp for the new backup
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+       #   TIMESTAMP=$(date +%Y%m%d%H%M%S)
 
           # Backup the currently deployed WAR file from Tomcat webapps directory to the backup folder
-          cp /home/varshini/tomcat/webapps/demo-1.0.0.war $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war
+        #  cp /home/varshini/tomcat/webapps/demo-1.0.0.war $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war
 
-          echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
+         # echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
 
       - name: Stop Tomcat server using PID
         run: |
