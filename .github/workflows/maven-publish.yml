@@ -86,6 +86,5 @@ jobs:
 
       - name: Start Tomcat server
         run: |
-          # Start Tomcat server
-          sudo systemctl start tomcat
+          /home/varshini/tomcat/bin/startup.sh
           echo "Tomcat server started."
