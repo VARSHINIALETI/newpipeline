@@ -14,20 +14,24 @@ jobs:
       - name: Build WAR
         run: mvn clean package -DskipTests
 
-    #  Step to list files in the target directory
+      # Step to list files in the target directory
       - name: List target directory
         run: ls -la target/
 
-     #  Step to save WAR file as an artifact
+      # Step to save WAR file as an artifact
       - name: Save WAR file as artifact
         uses: actions/upload-artifact@v3
         with:
           name: springboot-app  # Name of the artifact
           path: target/*.war     # Path to the WAR file
+
       - name: Check and Handle WAR File Deployment
         run: |
-          # Check if the WAR file is already deployed
-          sudo ls -la /opt/tomcat/webapps/
+          # Print the contents of the Tomcat webapps directory for debugging
+          echo "Listing contents of /opt/tomcat/webapps:"
+          ls -la /opt/tomcat/webapps/
+
+          # Check if the WAR file is NOT deployed
           if [ ! -f /opt/tomcat/webapps/demo-1.0.0.war ]; then
             echo "WAR file not found. Deploying new WAR file."
             
@@ -61,7 +65,7 @@ jobs:
             # Remove the old WAR file
             sudo rm -f /opt/tomcat/webapps/demo-1.0.0.war
             echo "Old WAR file removed from Tomcat."
-
+            
             # Deploy the new WAR file
             sudo cp target/*.war /opt/tomcat/webapps/demo-1.0.0.war
             echo "New WAR file deployed to Tomcat."
