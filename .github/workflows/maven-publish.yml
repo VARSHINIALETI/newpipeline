@@ -28,11 +28,11 @@ jobs:
       - name: Build WAR
         run: mvn clean package -DskipTests
 
-      # Step to list files in the target directory
+    #  Step to list files in the target directory
       - name: List target directory
         run: ls -la target/
 
-       # Step to save WAR file as an artifact
+     #  Step to save WAR file as an artifact
       - name: Save WAR file as artifact
         uses: actions/upload-artifact@v3
         with:
@@ -42,21 +42,21 @@ jobs:
 
 # stop tomcat  --> ps -e
 
-   #   - name: Backup running WAR file
-    #    run: |
-     #     BACKUP_DIR="/home/varshini/war-backups" 
-     #     mkdir -p $BACKUP_DIR
+      - name: Backup running WAR file
+        run: |
+         BACKUP_DIR="/home/varshini/war-backups" 
+          mkdir -p $BACKUP_DIR
 
           # Remove the previous backup if it exists
-      #    rm -f $BACKUP_DIR/demo-1.0.0-*.war
+         rm -f $BACKUP_DIR/demo-1.0.0-*.war
 
           # Define a timestamp for the new backup
-       #   TIMESTAMP=$(date +%Y%m%d%H%M%S)
+         TIMESTAMP=$(date +%Y%m%d%H%M%S)
 
           # Backup the currently deployed WAR file from Tomcat webapps directory to the backup folder
-        #  cp /home/varshini/tomcat/webapps/demo-1.0.0.war $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war
+         cp /opt/tomcat/webapps/demo-1.0.0.war $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war
 
-         # echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
+         echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
 
       - name: Stop Tomcat server using PID
         run: |
@@ -72,11 +72,11 @@ jobs:
           fi
 
 
-    #  - name: Remove old WAR file from Tomcat server
-     #   run: |
+      - name: Remove old WAR file from Tomcat server
+        run: |
           # Remove the old WAR file from Tomcat webapps directory
-      #    rm -f /home/varshini/tomcat/webapps/demo-1.0.0.war
-       #   echo "Old WAR file removed from Tomcat."
+          rm -f /opt/tomcat/webapps/demo-1.0.0.war
+          echo "Old WAR file removed from Tomcat."
 
       - name: Deploy new WAR file
         run: |
@@ -86,5 +86,5 @@ jobs:
 
       - name: Start Tomcat server
         run: |
-          /home/varshini/tomcat/bin/startup.sh
+          /opt/tomcat/bin/startup.sh
           echo "Tomcat server started."
