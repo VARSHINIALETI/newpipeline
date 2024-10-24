@@ -81,7 +81,7 @@ jobs:
       - name: Deploy new WAR file
         run: |
          # Copy the new WAR file to the Tomcat webapps directory
-          cp target/*.war /home/varshini/tomcat/webapps/demo-1.0.0.war
+          sudo cp target/*.war /opttomcat/webapps/demo-1.0.0.war
           echo "New WAR file deployed to Tomcat."
 
       - name: Start Tomcat server
