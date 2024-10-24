@@ -31,12 +31,17 @@ jobs:
           echo "Listing contents of /opt/tomcat/webapps:"
           sudo ls -la /opt/tomcat/webapps/
 
+          # Log the current user and the WAR file check
+          echo "Current user: $(whoami)"
+          WAR_FILE="/opt/tomcat/webapps/demo-1.0.0.war"
+          echo "Checking for WAR file: $WAR_FILE"
+
           # Check if the WAR file is NOT deployed
-          if [ ! -f /opt/tomcat/webapps/demo-1.0.0.war ]; then
+          if [ ! -f "$WAR_FILE" ]; then
             echo "WAR file not found. Deploying new WAR file."
             
             # Deploy new WAR file since it was not deployed before
-            sudo cp target/*.war /opt/tomcat/webapps/demo-1.0.0.war
+            sudo cp target/*.war "$WAR_FILE"
             echo "New WAR file deployed to Tomcat."
             
             # Start Tomcat
@@ -47,10 +52,10 @@ jobs:
             
             # Perform backup of currently deployed WAR file
             BACKUP_DIR="/home/varshini/war-backups"
-            sudo mkdir -p $BACKUP_DIR
-            sudo rm -f $BACKUP_DIR/demo-1.0.0-*.war
+            sudo mkdir -p "$BACKUP_DIR"
+            sudo rm -f "$BACKUP_DIR/demo-1.0.0-*.war"
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
-            sudo cp /opt/tomcat/webapps/demo-1.0.0.war $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war
+            sudo cp "$WAR_FILE" "$BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
             echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
             
             # Stop Tomcat server
@@ -58,16 +63,16 @@ jobs:
             if [ -z "$TOMCAT_PID" ]; then
               echo "Tomcat is not running."
             else
-              sudo kill -9 $TOMCAT_PID
+              sudo kill -9 "$TOMCAT_PID"
               echo "Tomcat server stopped. PID: $TOMCAT_PID"
             fi
             
             # Remove the old WAR file
-            sudo rm -f /opt/tomcat/webapps/demo-1.0.0.war
+            sudo rm -f "$WAR_FILE"
             echo "Old WAR file removed from Tomcat."
             
             # Deploy the new WAR file
-            sudo cp target/*.war /opt/tomcat/webapps/demo-1.0.0.war
+            sudo cp target/*.war "$WAR_FILE"
             echo "New WAR file deployed to Tomcat."
             
             # Start Tomcat
