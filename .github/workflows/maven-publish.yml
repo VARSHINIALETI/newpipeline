@@ -28,63 +28,72 @@ jobs:
       - name: Build WAR
         run: mvn clean package -DskipTests
 
-    #  Step to list files in the target directory
       - name: List target directory
         run: ls -la target/
 
-     #  Step to save WAR file as an artifact
       - name: Save WAR file as artifact
         uses: actions/upload-artifact@v3
         with:
           name: springboot-app  # Name of the artifact
           path: target/*.war     # Path to the WAR file
 
-
-# stop tomcat  --> ps -e
-
-      - name: Backup running WAR file
+      # Check if the WAR file is deployed or not
+      - name: Check if WAR file is deployed
+        id: check_deployment
         run: |
-         BACKUP_DIR="/home/varshini/war-backups" 
-         sudo mkdir -p $BACKUP_DIR
+          if [ -f /opt/tomcat/webapps/demo-1.0.0.war ]; then
+            echo "deployed=true" >> $GITHUB_ENV
+          else
+            echo "deployed=false" >> $GITHUB_ENV
+          fi
 
-          # Remove the previous backup if it exists
-         sudo rm -f $BACKUP_DIR/demo-1.0.0-*.war
-
-          # Define a timestamp for the new backup
-         TIMESTAMP=$(date +%Y%m%d%H%M%S)
-
-          # Backup the currently deployed WAR file from Tomcat webapps directory to the backup folder
-         sudo cp /opt/tomcat/webapps/demo-1.0.0.war $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war
-
-         echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
-
-      - name: Stop Tomcat server using PID
+      # If WAR file is deployed, run the full backup, stop, and redeploy process
+      - name: Full Backup, Stop, and Redeploy if WAR is deployed
+        if: env.deployed == 'true'
         run: |
-          # Find the PID of the Tomcat process
-          TOMCAT_PID=$(ps -ef | grep '[j]ava' | grep 'org.apache.catalina.startup.Bootstrap' | awk '{print $2}')
+          BACKUP_DIR="/home/varshini/war-backups"
+          sudo mkdir -p $BACKUP_DIR
           
+          # Remove previous backup if it exists
+          sudo rm -f $BACKUP_DIR/demo-1.0.0-*.war
+          
+          # Define a timestamp for the new backup
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          
+          # Backup the currently deployed WAR file
+          sudo cp /opt/tomcat/webapps/demo-1.0.0.war $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war
+          
+          echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
+          
+          # Stop Tomcat server
+          TOMCAT_PID=$(ps -ef | grep '[j]ava' | grep 'org.apache.catalina.startup.Bootstrap' | awk '{print $2}')
           if [ -z "$TOMCAT_PID" ]; then
             echo "Tomcat is not running."
           else
-            # Kill the Tomcat process
-             sudo kill -9 $TOMCAT_PID
+            sudo kill -9 $TOMCAT_PID
             echo "Tomcat server stopped. PID: $TOMCAT_PID"
           fi
-
-
-      - name: Remove old WAR file from Tomcat server
-        run: |
-          # Remove the old WAR file from Tomcat webapps directory
-          sudo rm -f /opt/tomcat/webapps/*.war
+          
+          # Remove old WAR file
+          sudo rm -f /opt/tomcat/webapps/demo-1.0.0.war
           echo "Old WAR file removed from Tomcat."
 
-      - name: Deploy new WAR file
-        run: |
-         # Copy the new WAR file to the Tomcat webapps directory
+          # Deploy new WAR file
           sudo cp target/*.war /opt/tomcat/webapps/demo-1.0.0.war
           echo "New WAR file deployed to Tomcat."
 
-      - name: Start Tomcat server
+          # Start Tomcat server
+          sudo /opt/tomcat/bin/startup.sh
+          echo "Tomcat server started."
+
+      # If WAR file is not deployed, deploy the WAR file and start Tomcat
+      - name: Direct deployment if WAR not deployed
+        if: env.deployed == 'false'
         run: |
-         sudo /opt/tomcat/bin/startup.sh
+          # Deploy new WAR file directly
+          sudo cp target/*.war /opt/tomcat/webapps/demo-1.0.0.war
+          echo "New WAR file deployed to Tomcat."
+
+          # Start Tomcat server
+          sudo /opt/tomcat/bin/startup.sh
           echo "Tomcat server started."
