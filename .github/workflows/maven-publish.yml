@@ -40,10 +40,9 @@ jobs:
           path: target/*.war     # Path to the WAR file
 
 
+# stop tomcat  --> ps -e
+
       - name: Backup running WAR file
-        env:
-          TOMCAT_USERNAME: ${{ secrets.TOMCAT_USERNAME }}
-          TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
         run: |
           BACKUP_DIR="/home/varshini/war-backups" 
           mkdir -p $BACKUP_DIR
@@ -59,22 +58,25 @@ jobs:
 
           echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
 
-      - name: Remove old WAR file from Tomcat server
-        env:
-          TOMCAT_USERNAME: ${{ secrets.TOMCAT_USERNAME }}
-          TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
+      - name: Stop Tomcat server
         run: |
-          # Undeploy the old WAR file from Tomcat
-          curl "http://localhost:8081/manager/text/undeploy?path=/demo-1.0.0" \
-          --user $TOMCAT_USERNAME:$TOMCAT_PASSWORD
-          echo "Old WAR file undeployed from Tomcat."
+          # Stop Tomcat server using its PID or any other method
+          sudo systemctl stop tomcat
 
-      - name: Deploy to Tomcat
-        env:
-          TOMCAT_USERNAME: ${{ secrets.TOMCAT_USERNAME }}
-          TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
+      - name: Remove old WAR file from Tomcat server
         run: |
-          WAR_FILE=$(ls target/*.war)
-          curl --upload-file "$WAR_FILE" \
-          "http://localhost:8081/manager/text/deploy?path=/demo-1.0.0&update=true" \
-          --user $TOMCAT_USERNAME:$TOMCAT_PASSWORD
+          # Remove the old WAR file from Tomcat webapps directory
+          rm -f /home/varshini/tomcat/webapps/demo-1.0.0.war
+          echo "Old WAR file removed from Tomcat."
+
+      - name: Deploy new WAR file
+        run: |
+          # Copy the new WAR file to the Tomcat webapps directory
+          cp target/*.war /home/varshini/tomcat/webapps/demo-1.0.0.war
+          echo "New WAR file deployed to Tomcat."
+
+      - name: Start Tomcat server
+        run: |
+          # Start Tomcat server
+          sudo systemctl start tomcat
+          echo "Tomcat server started."
