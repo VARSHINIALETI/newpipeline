@@ -32,12 +32,42 @@ jobs:
       - name: List target directory
         run: ls -la target/
 
-      # Step to save WAR file as an artifact
+       # Step to save WAR file as an artifact
       - name: Save WAR file as artifact
         uses: actions/upload-artifact@v3
         with:
           name: springboot-app  # Name of the artifact
           path: target/*.war     # Path to the WAR file
+
+
+      - name: Backup running WAR file
+        env:
+          TOMCAT_USERNAME: ${{ secrets.TOMCAT_USERNAME }}
+          TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
+        run: |
+          BACKUP_DIR="/home/varshini/war-backups" 
+          mkdir -p $BACKUP_DIR
+
+          # Remove the previous backup if it exists
+          rm -f $BACKUP_DIR/demo-1.0.0-*.war
+
+          # Define a timestamp for the new backup
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+
+          # Backup the currently deployed WAR file from Tomcat webapps directory to the backup folder
+          cp /home/varshini/tomcat/webapps/demo-1.0.0.war $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war
+
+          echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
+
+      - name: Remove old WAR file from Tomcat server
+        env:
+          TOMCAT_USERNAME: ${{ secrets.TOMCAT_USERNAME }}
+          TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
+        run: |
+          # Undeploy the old WAR file from Tomcat
+          curl "http://localhost:8081/manager/text/undeploy?path=/demo-1.0.0" \
+          --user $TOMCAT_USERNAME:$TOMCAT_PASSWORD
+          echo "Old WAR file undeployed from Tomcat."
 
       - name: Deploy to Tomcat
         env:
