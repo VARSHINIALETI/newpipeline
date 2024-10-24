@@ -72,15 +72,15 @@ jobs:
           fi
 
 
-      - name: Remove old WAR file from Tomcat server
-        run: |
+    #  - name: Remove old WAR file from Tomcat server
+     #   run: |
           # Remove the old WAR file from Tomcat webapps directory
-          rm -f /home/varshini/tomcat/webapps/demo-1.0.0.war
-          echo "Old WAR file removed from Tomcat."
+      #    rm -f /home/varshini/tomcat/webapps/demo-1.0.0.war
+       #   echo "Old WAR file removed from Tomcat."
 
       - name: Deploy new WAR file
         run: |
-          # Copy the new WAR file to the Tomcat webapps directory
+         # Copy the new WAR file to the Tomcat webapps directory
           cp target/*.war /home/varshini/tomcat/webapps/demo-1.0.0.war
           echo "New WAR file deployed to Tomcat."
 
