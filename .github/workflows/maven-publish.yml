@@ -37,8 +37,8 @@ jobs:
           echo "Listing contents of /opt/tomcat/webapps:"
           sudo ls -la /opt/tomcat/webapps
 
-          # Check if the WAR file exists
-          if [ -f "$WAR_FILE" ]; then
+          # Check if the WAR file exists with sudo
+          if sudo [ -f "$WAR_FILE" ]; then
             echo "WAR file exists at $WAR_FILE"
             echo "WAR file is already deployed. Running backup, stop, and redeploy process."
 
