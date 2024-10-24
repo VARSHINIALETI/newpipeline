@@ -27,7 +27,7 @@ jobs:
       - name: Check and Handle WAR File Deployment
         run: |
           # Check if the WAR file is already deployed
-          ls -la /opt/tomcat/webapps/
+          sudo ls -la /opt/tomcat/webapps/
           if [ ! -f /opt/tomcat/webapps/demo-1.0.0.war ]; then
             echo "WAR file not found. Deploying new WAR file."
             
