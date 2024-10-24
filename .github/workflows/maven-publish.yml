@@ -58,10 +58,19 @@ jobs:
 
           echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
 
-      - name: Stop Tomcat server
+      - name: Stop Tomcat server using PID
         run: |
-          # Stop Tomcat server using its PID or any other method
-          sudo systemctl stop tomcat
+          # Find the PID of the Tomcat process
+          TOMCAT_PID=$(ps -ef | grep '[j]ava' | grep 'org.apache.catalina.startup.Bootstrap' | awk '{print $2}')
+          
+          if [ -z "$TOMCAT_PID" ]; then
+            echo "Tomcat is not running."
+          else
+            # Kill the Tomcat process
+            kill -9 $TOMCAT_PID
+            echo "Tomcat server stopped. PID: $TOMCAT_PID"
+          fi
+
 
       - name: Remove old WAR file from Tomcat server
         run: |
