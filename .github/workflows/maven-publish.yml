@@ -29,7 +29,7 @@ jobs:
         run: |
           # Print the contents of the Tomcat webapps directory for debugging
           echo "Listing contents of /opt/tomcat/webapps:"
-          ls -la /opt/tomcat/webapps/
+          sudo ls -la /opt/tomcat/webapps/
 
           # Check if the WAR file is NOT deployed
           if [ ! -f /opt/tomcat/webapps/demo-1.0.0.war ]; then
