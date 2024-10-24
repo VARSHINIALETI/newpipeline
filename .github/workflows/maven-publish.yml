@@ -81,7 +81,7 @@ jobs:
           # Deploy new WAR file
           sudo cp target/*.war /opt/tomcat/webapps/demo-1.0.0.war
           echo "New WAR file deployed to Tomcat."
-
+          
           # Start Tomcat server
           sudo /opt/tomcat/bin/startup.sh
           echo "Tomcat server started."
@@ -93,7 +93,7 @@ jobs:
           # Deploy new WAR file directly
           sudo cp target/*.war /opt/tomcat/webapps/demo-1.0.0.war
           echo "New WAR file deployed to Tomcat."
-
+          
           # Start Tomcat server
           sudo /opt/tomcat/bin/startup.sh
           echo "Tomcat server started."
