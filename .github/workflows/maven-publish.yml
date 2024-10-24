@@ -27,55 +27,57 @@ jobs:
 
       - name: Check and Handle WAR File Deployment
         run: |
-          # Print the contents of the Tomcat webapps directory for debugging
-          echo "Listing contents of /opt/tomcat/webapps:"
-          sudo ls -la /opt/tomcat/webapps/
-
-          # Log the current user and the WAR file check
-          echo "Current user: $(whoami)"
+          # Path to the WAR file
           WAR_FILE="/opt/tomcat/webapps/demo-1.0.0.war"
-          echo "Checking for WAR file: $WAR_FILE"
 
-          # Check if the WAR file is NOT deployed
-          if [ ! -f "$WAR_FILE" ]; then
-            echo "WAR file not found. Deploying new WAR file."
-            
-            # Deploy new WAR file since it was not deployed before
-            sudo cp target/*.war "$WAR_FILE"
-            echo "New WAR file deployed to Tomcat."
-            
-            # Start Tomcat
-            sudo /opt/tomcat/bin/startup.sh
-            echo "Tomcat server started with new deployment."
-          else
+          # Print current user for debugging
+          echo "Current user: $(whoami)"
+
+          # List contents of the webapps directory for debugging
+          echo "Listing contents of /opt/tomcat/webapps:"
+          sudo ls -la /opt/tomcat/webapps
+
+          # Check if the WAR file exists
+          if [ -f "$WAR_FILE" ]; then
+            echo "WAR file exists at $WAR_FILE"
             echo "WAR file is already deployed. Running backup, stop, and redeploy process."
-            
+
             # Perform backup of currently deployed WAR file
             BACKUP_DIR="/home/varshini/war-backups"
-            sudo mkdir -p "$BACKUP_DIR"
-            sudo rm -f "$BACKUP_DIR/demo-1.0.0-*.war"
+            sudo mkdir -p $BACKUP_DIR
+            sudo rm -f $BACKUP_DIR/demo-1.0.0-*.war
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             sudo cp "$WAR_FILE" "$BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
             echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
-            
+
             # Stop Tomcat server
             TOMCAT_PID=$(ps -ef | grep '[j]ava' | grep 'org.apache.catalina.startup.Bootstrap' | awk '{print $2}')
             if [ -z "$TOMCAT_PID" ]; then
               echo "Tomcat is not running."
             else
-              sudo kill -9 "$TOMCAT_PID"
+              sudo kill -9 $TOMCAT_PID
               echo "Tomcat server stopped. PID: $TOMCAT_PID"
             fi
-            
+
             # Remove the old WAR file
             sudo rm -f "$WAR_FILE"
             echo "Old WAR file removed from Tomcat."
-            
+
             # Deploy the new WAR file
             sudo cp target/*.war "$WAR_FILE"
             echo "New WAR file deployed to Tomcat."
-            
+
             # Start Tomcat
             sudo /opt/tomcat/bin/startup.sh
             echo "Tomcat server started with the new deployment."
+          else
+            echo "WAR file not found. Deploying new WAR file."
+
+            # Deploy new WAR file since it was not deployed before
+            sudo cp target/*.war "$WAR_FILE"
+            echo "New WAR file deployed to Tomcat."
+
+            # Start Tomcat
+            sudo /opt/tomcat/bin/startup.sh
+            echo "Tomcat server started with new deployment."
           fi
