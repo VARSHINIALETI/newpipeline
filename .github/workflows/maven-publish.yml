@@ -67,7 +67,7 @@ jobs:
             echo "Tomcat is not running."
           else
             # Kill the Tomcat process
-            kill -9 $TOMCAT_PID
+             sudo kill -9 $TOMCAT_PID
             echo "Tomcat server stopped. PID: $TOMCAT_PID"
           fi
 
