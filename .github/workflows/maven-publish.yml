@@ -73,6 +73,15 @@ jobs:
           else
             echo "WAR file not found. Deploying new WAR file."
 
+              # Stop Tomcat server
+            TOMCAT_PID=$(ps -ef | grep '[j]ava' | grep 'org.apache.catalina.startup.Bootstrap' | awk '{print $2}')
+            if [ -z "$TOMCAT_PID" ]; then
+              echo "Tomcat is not running."
+            else
+              sudo kill -9 $TOMCAT_PID
+              echo "Tomcat server stopped. PID: $TOMCAT_PID"
+            fi
+
             # Deploy new WAR file since it was not deployed before
             sudo cp target/*.war "$WAR_FILE"
             echo "New WAR file deployed to Tomcat."
