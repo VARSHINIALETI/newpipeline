@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Build WAR
-        run: mvn clean package -DskipTests
+        run: mvn clean compile package -DskipTests
 
       # Step to list files in the target directory
       - name: List target directory
@@ -27,6 +27,8 @@ jobs:
 
       - name: Check and Handle WAR File Deployment
         run: |
+          # all variables here
+  
           # Path to the WAR file
           WAR_FILE="/opt/tomcat/webapps/demo-1.0.0.war"
 
@@ -45,12 +47,12 @@ jobs:
             # Perform backup of currently deployed WAR file
             BACKUP_DIR="/home/varshini/war-backups"
             sudo mkdir -p $BACKUP_DIR
-            sudo rm -f $BACKUP_DIR/demo-1.0.0-*.war
+            #sudo rm -f $BACKUP_DIR/demo-1.0.0-*.war
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             sudo cp "$WAR_FILE" "$BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
             echo "Backup of running WAR file created at $BACKUP_DIR/demo-1.0.0-$TIMESTAMP.war"
 
-            # Stop Tomcat server
+            # Stop Tomcat server (OPTIONAL: stop tomcat based on port number)
             TOMCAT_PID=$(ps -ef | grep '[j]ava' | grep 'org.apache.catalina.startup.Bootstrap' | awk '{print $2}')
             if [ -z "$TOMCAT_PID" ]; then
               echo "Tomcat is not running."
@@ -61,6 +63,7 @@ jobs:
 
             # Remove the old WAR file
             sudo rm -f "$WAR_FILE"
+            # remove folder also ---------------------------
             echo "Old WAR file removed from Tomcat."
 
             # Deploy the new WAR file
