@@ -13,7 +13,10 @@ jobs:
       
       - name: Build WAR
         run: mvn clean compile package -DskipTests
+  deploy:
+    runs-on: self hosted
 
+    steps:
       # Step to list files in the target directory
       - name: List target directory
         run: ls -la target/
